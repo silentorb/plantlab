@@ -5,7 +5,6 @@
 /// <reference path="buster.d.ts" />
 /// <reference path="socket.io.d.ts" />
 /// <reference path="node.d.ts" />
-declare var socket_manager: {};
 declare class PlantLab {
     public ground: Ground.Core;
     public vineyard: Vineyard;
@@ -14,15 +13,18 @@ declare class PlantLab {
     constructor(config_path: string);
     public close(): void;
     public create_socket();
+    public start(): void;
     public test(name: string, tests): void;
 }
 declare module PlantLab {
     class Fixture {
-        public ground;
+        public lab: PlantLab;
+        public ground: Ground.Core;
+        constructor(lab: PlantLab);
         public all(): Promise;
         public prepare_database(): Promise;
         public populate(): Promise;
-        public clear_file_folders(): Promise;
+        public clear_file_folders(folders): Promise;
         public insert_object(trellis, data): Promise;
         public empty_folder(folder): Promise;
     }

@@ -1,10 +1,7 @@
-var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = require('vineyard');var Ground = require('ground');var sequence = require('when/sequence');var io = require('socket.io-client');var buster = require("buster");var socket_manager = {};
-
-var PlantLab = (function () {
+var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = require('vineyard');var Ground = require('ground');var sequence = require('when/sequence');var io = require('socket.io-client');var buster = require("buster");var PlantLab = (function () {
     function PlantLab(config_path) {
         this.sockets = [];
-        var vineyard = new Vineyard(config_path);
-        vineyard.start();
+        var vineyard = this.vineyard = new Vineyard(config_path);
         this.server = vineyard.bulbs.lawn;
         this.ground = vineyard.ground;
         if (process.argv.indexOf('-d') > -1)
@@ -35,6 +32,10 @@ var PlantLab = (function () {
         return socket;
     };
 
+    PlantLab.prototype.start = function () {
+        this.vineyard.start();
+    };
+
     PlantLab.prototype.test = function (name, tests) {
         buster.testCase(name, tests);
     };
@@ -43,7 +44,9 @@ var PlantLab = (function () {
 var PlantLab;
 (function (PlantLab) {
     var Fixture = (function () {
-        function Fixture() {
+        function Fixture(lab) {
+            this.lab = lab;
+            this.ground = lab.vineyard.ground;
         }
         Fixture.prototype.all = function () {
             var _this = this;
@@ -66,11 +69,11 @@ var PlantLab;
             return when.resolve();
         };
 
-        Fixture.prototype.clear_file_folders = function () {
-            return when.all([
-                this.empty_folder('e:/websites/tapz/files'),
-                this.empty_folder('e:/websites/tapz/tmp')
-            ]);
+        Fixture.prototype.clear_file_folders = function (folders) {
+            var _this = this;
+            return when.all(folders.map(function (folder) {
+                return _this.empty_folder(folder);
+            }));
         };
 
         Fixture.prototype.insert_object = function (trellis, data) {
@@ -97,4 +100,4 @@ var PlantLab;
 })(PlantLab || (PlantLab = {}));
 require('source-map-support').install();
 //# sourceMappingURL=plantlab.js.map
-module.exports = Lawn.Server
+module.exports = PlantLab

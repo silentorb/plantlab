@@ -35,6 +35,7 @@ class PlantLab {
     }
   }
 
+
   create_socket() {
     var socket = io.connect('127.0.0.1:' + this.vineyard.config.bulbs.lawn.ports.websocket, {
       'force new connection': true
