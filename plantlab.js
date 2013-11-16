@@ -14,6 +14,7 @@ var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = r
         }
 
         for (var s in this.sockets) {
+            console.log('Disconnecting client socket: ', this.sockets[s].socket.sessionid);
             this.sockets[s].disconnect();
         }
     };

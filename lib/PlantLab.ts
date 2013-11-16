@@ -31,10 +31,10 @@ class PlantLab {
     }
 
     for (var s in this.sockets) {
+      console.log('Disconnecting client socket: ',  this.sockets[s].socket.sessionid)
       this.sockets[s].disconnect()
     }
   }
-
 
   create_socket() {
     var socket = io.connect('127.0.0.1:' + this.vineyard.config.bulbs.lawn.ports.websocket, {
