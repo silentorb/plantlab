@@ -1,9 +1,11 @@
 /// <reference path="socket.io.extension.d.ts" />
 
-
 /// <reference path="metahub.d.ts" />
 /// <reference path="ground.d.ts" />
 /// <reference path="vineyard.d.ts" />
+
+declare module Lawn {
+}
 declare class Lawn extends Vineyard.Bulb {
     public io;
     public instance_sockets: {};
@@ -24,19 +26,6 @@ declare class Lawn extends Vineyard.Bulb {
     public stop(): void;
 }
 declare module Lawn {
-    interface IUser {
-        id?;
-        name?: string;
-    }
-    class User {
-        public id: number;
-        public name: string;
-        public session;
-        constructor(source: IUser);
-        public simple(): IUser;
-    }
-}
-declare module Lawn {
     interface Query_Request {
         trellis: string;
         filters?: Ground.Query_Filter[];
@@ -48,8 +37,8 @@ declare module Lawn {
         objects: any[];
     }
     class Irrigation {
-        static query(request: Query_Request, ground: Ground.Core, vineyard: Vineyard): Promise;
-        static update(request: Update_Request, uid, ground: Ground.Core, vineyard: Vineyard): Promise;
+        static query(request: Query_Request, user: Vineyard.IUser, ground: Ground.Core, vineyard: Vineyard): Promise;
+        static update(request: Update_Request, user: Vineyard.IUser, ground: Ground.Core, vineyard: Vineyard): Promise;
     }
 }
 declare module "lawn" {
