@@ -1,4 +1,4 @@
-var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = require('vineyard');var Ground = require('ground');var sequence = require('when/sequence');var io = require('socket.io-client');var buster = require("buster");var PlantLab = (function () {
+var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = require('vineyard');var Ground = require('ground');var when = require('when');var io = require('socket.io-client');var buster = require("buster");var PlantLab = (function () {
     function PlantLab(config_path) {
         this.sockets = [];
         var vineyard = this.vineyard = new Vineyard(config_path);
@@ -7,7 +7,7 @@ var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = r
         if (process.argv.indexOf('-d') > -1)
             this.ground.db.log_queries = true;
     }
-    PlantLab.prototype.close = function () {
+    PlantLab.prototype.stop = function () {
         if (this.server) {
             console.log('stopping server');
             this.server.stop();
@@ -39,6 +39,50 @@ var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = r
 
     PlantLab.prototype.test = function (name, tests) {
         buster.testCase(name, tests);
+    };
+
+    PlantLab.prototype.login_http = function (name, pass) {
+        var def = when.defer();
+        var http = require('http');
+        var fs = require('fs');
+        var path = require('path');
+        var options = {
+            host: 'localhost',
+            port: this.vineyard.config.bulbs.lawn.ports.http,
+            path: '/vineyard/login',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        var req = http.request(options, function (res) {
+            if (res.statusCode != '200') {
+                console.log('res', res);
+                res.setEncoding('utf8');
+                res.on('data', function (chunk) {
+                    console.log('client received an error:', res.status, chunk);
+                    def.reject();
+                });
+            } else {
+                def.resolve(res);
+            }
+        });
+
+        var data = {
+            name: name,
+            pass: pass
+        };
+
+        req.write(JSON.stringify(data));
+        req.end();
+
+        req.on('error', function (e) {
+            console.log('problem with request: ' + e.message);
+            def.reject();
+        });
+
+        return def.promise;
     };
     return PlantLab;
 })();

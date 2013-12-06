@@ -11,10 +11,11 @@ declare class PlantLab {
     public server: Lawn;
     public sockets: any[];
     constructor(config_path: string);
-    public close(): void;
+    public stop(): void;
     public create_socket();
     public start(): void;
     public test(name: string, tests): void;
+    public login_http(name: string, pass: string): Promise;
 }
 declare module PlantLab {
     class Fixture {
