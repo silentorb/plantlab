@@ -11,6 +11,7 @@ class PlantLab {
   vineyard:Vineyard
   server:Lawn
   sockets = []
+  http_config
 
   constructor(config_path:string) {
     var vineyard = this.vineyard = new Vineyard(config_path)
@@ -72,13 +73,18 @@ class PlantLab {
         'Content-Type': 'application/json',
       }
     }
+    if (this.http_config) {
+      options.host = this.http_config.host
+      options.port = this.http_config.port
+    }
 
     var req = http.request(options, function (res) {
-      if (res.status != '200') {
+//      console.log('log-res', res)
+      if (res.statusCode != '200') {
         console.log('res', res)
         res.setEncoding('utf8')
         res.on('data', function (chunk) {
-          console.log('client received an error:', res.status , chunk)
+          console.log('client received an error:', res.statusCode , chunk)
           def.reject()
         })
       }

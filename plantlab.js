@@ -55,13 +55,17 @@ var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = r
                 'Content-Type': 'application/json'
             }
         };
+        if (this.http_config) {
+            options.host = this.http_config.host;
+            options.port = this.http_config.port;
+        }
 
         var req = http.request(options, function (res) {
             if (res.statusCode != '200') {
                 console.log('res', res);
                 res.setEncoding('utf8');
                 res.on('data', function (chunk) {
-                    console.log('client received an error:', res.status, chunk);
+                    console.log('client received an error:', res.statusCode, chunk);
                     def.reject();
                 });
             } else {
@@ -121,8 +125,9 @@ var PlantLab;
             }));
         };
 
-        Fixture.prototype.insert_object = function (trellis, data) {
-            return this.ground.insert_object(trellis, data);
+        Fixture.prototype.insert_object = function (trellis, data, user) {
+            if (typeof user === "undefined") { user = null; }
+            return this.ground.insert_object(trellis, data, user);
         };
 
         Fixture.prototype.empty_folder = function (folder) {

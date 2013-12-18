@@ -10,6 +10,7 @@ declare class PlantLab {
     public vineyard: Vineyard;
     public server: Lawn;
     public sockets: any[];
+    public http_config;
     constructor(config_path: string);
     public stop(): void;
     public create_socket();
@@ -26,7 +27,7 @@ declare module PlantLab {
         public prepare_database(): Promise;
         public populate(): Promise;
         public clear_file_folders(folders): Promise;
-        public insert_object(trellis, data): Promise;
+        public insert_object(trellis, data, user?): Promise;
         public empty_folder(folder): Promise;
     }
 }

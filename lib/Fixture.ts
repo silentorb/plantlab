@@ -31,8 +31,8 @@ module PlantLab {
       return when.all(folders.map((folder)=> this.empty_folder(folder)))
     }
 
-    insert_object(trellis, data):Promise {
-      return this.ground.insert_object(trellis, data);
+    insert_object(trellis, data, user = null):Promise {
+      return this.ground.insert_object(trellis, data, user);
     }
 
     empty_folder(folder):Promise {
