@@ -20,7 +20,7 @@ var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = r
     };
 
     PlantLab.prototype.create_socket = function () {
-        var socket = io.connect('127.0.0.1:' + this.vineyard.config.bulbs.lawn.ports.websocket, {
+        var socket = this.main_socket = io.connect('127.0.0.1:' + this.vineyard.config.bulbs.lawn.ports.websocket, {
             'force new connection': true
         });
         this.sockets.push(socket);
@@ -39,6 +39,15 @@ var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = r
 
     PlantLab.prototype.test = function (name, tests) {
         buster.testCase(name, tests);
+    };
+
+    PlantLab.prototype.emit = function (socket, url, data) {
+        var def = when.defer();
+        socket.emit(url, data, function (response) {
+            console.log('finished:', url);
+            def.resolve(response);
+        });
+        return def.promise;
     };
 
     PlantLab.prototype.login_http = function (name, pass) {
@@ -62,7 +71,6 @@ var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = r
 
         var req = http.request(options, function (res) {
             if (res.statusCode != '200') {
-                console.log('res', res);
                 res.setEncoding('utf8');
                 res.on('data', function (chunk) {
                     console.log('client received an error:', res.statusCode, chunk);

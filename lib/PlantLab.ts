@@ -11,6 +11,7 @@ class PlantLab {
   vineyard:Vineyard
   server:Lawn
   sockets = []
+  main_socket
   http_config
 
   constructor(config_path:string) {
@@ -38,7 +39,7 @@ class PlantLab {
   }
 
   create_socket() {
-    var socket = io.connect('127.0.0.1:' + this.vineyard.config.bulbs.lawn.ports.websocket, {
+    var socket = this.main_socket = io.connect('127.0.0.1:' + this.vineyard.config.bulbs.lawn.ports.websocket, {
       'force new connection': true
     });
     this.sockets.push(socket);
@@ -57,6 +58,15 @@ class PlantLab {
 
   test(name:string, tests) {
     buster.testCase(name, tests)
+  }
+
+  emit(socket, url, data):Promise {
+    var def = when.defer()
+    socket.emit(url, data, (response)=> {
+      console.log('finished:', url)
+      def.resolve(response)
+    })
+    return def.promise
   }
 
   login_http(name:string, pass:string):Promise {
@@ -81,10 +91,9 @@ class PlantLab {
     var req = http.request(options, function (res) {
 //      console.log('log-res', res)
       if (res.statusCode != '200') {
-        console.log('res', res)
         res.setEncoding('utf8')
         res.on('data', function (chunk) {
-          console.log('client received an error:', res.statusCode , chunk)
+          console.log('client received an error:', res.statusCode, chunk)
           def.reject()
         })
       }

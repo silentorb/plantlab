@@ -10,12 +10,14 @@ declare class PlantLab {
     public vineyard: Vineyard;
     public server: Lawn;
     public sockets: any[];
+    public main_socket;
     public http_config;
     constructor(config_path: string);
     public stop(): void;
     public create_socket();
     public start(): void;
     public test(name: string, tests): void;
+    public emit(socket, url, data): Promise;
     public login_http(name: string, pass: string): Promise;
 }
 declare module PlantLab {

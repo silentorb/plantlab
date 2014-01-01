@@ -90,7 +90,7 @@ declare module Ground {
         sorts?: Query_Sort[];
         expansions?: string[];
         reductions?: string[];
-        properties?: Property_Query_Source[];
+        properties?: any[];
     }
     interface External_Query_Source extends Property_Query_Source {
         trellis: string;
@@ -368,6 +368,7 @@ declare module Ground {
         public get_field_type();
         public get_seed_name(): string;
         public get_sql_value(value, type?);
+        public get_type(): string;
         public get_other_id(entity);
         public get_other_property(create_if_none?: boolean): Property;
         public get_property_type(): Ground.Property_Type;
