@@ -117,4 +117,26 @@ class PlantLab {
 
     return def.promise
   }
+
+  login_socket(name:string, pass:string):Promise {
+    var socket = this.create_socket()
+    return this.login_http(name, pass)
+      .then(()=> this.login_http('phil', 'test'))
+      .then((res)=> {
+        socket.on('error', (data) => {
+          console.log('Socket Error', data)
+          throw new Error('Error with socket communication.')
+        })
+        var def = when.defer()
+        res.setEncoding('utf8')
+        res.on('data', function (json) {
+          var data = JSON.parse(json)
+//          console.log('data:', data)
+          def.resolve(data)
+        })
+        return def.promise
+      })
+      .then((data)=> this.emit(socket, 'login', data))
+      .then(() => socket)
+  }
 }

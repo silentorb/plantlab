@@ -19,6 +19,7 @@ declare class PlantLab {
     public test(name: string, tests): void;
     public emit(socket, url, data): Promise;
     public login_http(name: string, pass: string): Promise;
+    public login_socket(name: string, pass: string): Promise;
 }
 declare module PlantLab {
     class Fixture {

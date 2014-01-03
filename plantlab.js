@@ -96,6 +96,31 @@ var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = r
 
         return def.promise;
     };
+
+    PlantLab.prototype.login_socket = function (name, pass) {
+        var _this = this;
+        var socket = this.create_socket();
+        return this.login_http(name, pass).then(function () {
+            return _this.login_http('phil', 'test');
+        }).then(function (res) {
+            socket.on('error', function (data) {
+                console.log('Socket Error', data);
+                throw new Error('Error with socket communication.');
+            });
+            var def = when.defer();
+            res.setEncoding('utf8');
+            res.on('data', function (json) {
+                var data = JSON.parse(json);
+
+                def.resolve(data);
+            });
+            return def.promise;
+        }).then(function (data) {
+            return _this.emit(socket, 'login', data);
+        }).then(function () {
+            return socket;
+        });
+    };
     return PlantLab;
 })();
 var PlantLab;
