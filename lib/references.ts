@@ -5,6 +5,3 @@
 /// <reference path="../defs/buster.d.ts"/>
 /// <reference path="../defs/socket.io.d.ts"/>
 /// <reference path="../defs/node.d.ts"/>
-
-/// <reference path="PlantLab.ts"/>
-/// <reference path="Fixture.ts"/>

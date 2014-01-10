@@ -1,4 +1,5 @@
-var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = require('vineyard');var Ground = require('ground');var when = require('when');var io = require('socket.io-client');var buster = require("buster");var PlantLab = (function () {
+var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = require('vineyard');var Ground = require('ground');var when = require('when');var io = require('socket.io-client');var buster = require("buster");
+var PlantLab = (function () {
     function PlantLab(config_path) {
         this.sockets = [];
         var vineyard = this.vineyard = new Vineyard(config_path);
@@ -14,9 +15,13 @@ var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = r
         }
 
         for (var s in this.sockets) {
-            console.log('Disconnecting client socket: ', this.sockets[s].socket.sessionid);
-            this.sockets[s].disconnect();
+            if (this.sockets[s]) {
+                console.log('Disconnecting client socket: ', this.sockets[s].socket.sessionid);
+                this.sockets[s].disconnect();
+            }
         }
+
+        this.sockets = [];
     };
 
     PlantLab.prototype.create_socket = function () {
@@ -100,9 +105,7 @@ var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = r
     PlantLab.prototype.login_socket = function (name, pass) {
         var _this = this;
         var socket = this.create_socket();
-        return this.login_http(name, pass).then(function () {
-            return _this.login_http('phil', 'test');
-        }).then(function (res) {
+        return this.login_http(name, pass).then(function (res) {
             socket.on('error', function (data) {
                 console.log('Socket Error', data);
                 throw new Error('Error with socket communication.');
@@ -123,6 +126,7 @@ var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = r
     };
     return PlantLab;
 })();
+
 var PlantLab;
 (function (PlantLab) {
     var Fixture = (function () {
@@ -181,6 +185,5 @@ var PlantLab;
     })();
     PlantLab.Fixture = Fixture;
 })(PlantLab || (PlantLab = {}));
-require('source-map-support').install();
 //# sourceMappingURL=plantlab.js.map
 module.exports = PlantLab

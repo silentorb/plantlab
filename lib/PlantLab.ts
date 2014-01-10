@@ -22,10 +22,6 @@ class PlantLab {
       this.ground.db.log_queries = true
   }
 
-//  start_server() {
-//    this.server.start_sockets()
-//  }
-
   stop() {
     if (this.server) {
       console.log('stopping server')
@@ -33,9 +29,13 @@ class PlantLab {
     }
 
     for (var s in this.sockets) {
-      console.log('Disconnecting client socket: ', this.sockets[s].socket.sessionid)
-      this.sockets[s].disconnect()
+      if (this.sockets[s]) {
+        console.log('Disconnecting client socket: ', this.sockets[s].socket.sessionid)
+        this.sockets[s].disconnect()
+      }
     }
+
+    this.sockets = []
   }
 
   create_socket() {
@@ -121,7 +121,6 @@ class PlantLab {
   login_socket(name:string, pass:string):Promise {
     var socket = this.create_socket()
     return this.login_http(name, pass)
-      .then(()=> this.login_http('phil', 'test'))
       .then((res)=> {
         socket.on('error', (data) => {
           console.log('Socket Error', data)
@@ -138,5 +137,57 @@ class PlantLab {
       })
       .then((data)=> this.emit(socket, 'login', data))
       .then(() => socket)
+  }
+}
+
+module PlantLab {
+  export class Fixture {
+    lab:PlantLab
+    ground:Ground.Core
+
+    constructor(lab:PlantLab) {
+      this.lab = lab
+      this.ground = lab.vineyard.ground
+    }
+
+    all():Promise {
+      return this.prepare_database()
+        .then(()=> this.populate())
+    }
+
+    prepare_database():Promise {
+      var db = this.ground.db;
+      return db.drop_all_tables()
+        .then(()=> db.create_trellis_tables(this.ground.trellises))
+        .then(()=> db.add_non_trellis_tables_to_database(this.ground.tables, this.ground))
+    }
+
+    populate():Promise {
+      return when.resolve()
+    }
+
+    clear_file_folders(folders):Promise {
+      return when.all(folders.map((folder)=> this.empty_folder(folder)))
+    }
+
+    insert_object(trellis, data, user = null):Promise {
+      return this.ground.insert_object(trellis, data, user);
+    }
+
+    empty_folder(folder):Promise {
+      var fs = require('fs')
+      var nodefn = require('when/node/function')
+      var path = require('path')
+
+      return nodefn.call(fs.readdir, folder)
+        .then((files) => {
+          console.log('files', files)
+          var promises = files.map((file)=>
+              nodefn.call(fs.unlink, path.join(folder, file))
+          )
+
+          return when.all(promises)
+        })
+    }
   }
 }
