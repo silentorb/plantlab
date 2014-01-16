@@ -7,6 +7,8 @@ var PlantLab = (function () {
         this.ground = vineyard.ground;
         if (process.argv.indexOf('-d') > -1)
             this.ground.db.log_queries = true;
+
+        this.server.debug_mode = true;
     }
     PlantLab.prototype.stop = function () {
         if (this.server) {
@@ -55,20 +57,23 @@ var PlantLab = (function () {
         return def.promise;
     };
 
-    PlantLab.prototype.login_http = function (name, pass) {
+    PlantLab.prototype.post = function (path, data, login_data) {
+        if (typeof login_data === "undefined") { login_data = null; }
         var def = when.defer();
         var http = require('http');
-        var fs = require('fs');
-        var path = require('path');
         var options = {
             host: 'localhost',
             port: this.vineyard.config.bulbs.lawn.ports.http,
-            path: '/vineyard/login',
+            path: path,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             }
         };
+
+        if (login_data && login_data.cookie)
+            options.headers['Cookie'] = login_data.cookie;
+
         if (this.http_config) {
             options.host = this.http_config.host;
             options.port = this.http_config.port;
@@ -82,14 +87,12 @@ var PlantLab = (function () {
                     def.reject();
                 });
             } else {
-                def.resolve(res);
+                res.on('data', function (data) {
+                    res.content = JSON.parse(data);
+                    def.resolve(res);
+                });
             }
         });
-
-        var data = {
-            name: name,
-            pass: pass
-        };
 
         req.write(JSON.stringify(data));
         req.end();
@@ -102,23 +105,32 @@ var PlantLab = (function () {
         return def.promise;
     };
 
+    PlantLab.prototype.login_http = function (name, pass) {
+        var data = {
+            name: name,
+            pass: pass
+        };
+
+        return this.post('/vineyard/login', data).then(function (res) {
+            var data = res.content;
+            var cookie = res.headers["set-cookie"];
+            if (cookie) {
+                data.cookie = (cookie + "").split(";").shift();
+            }
+
+            return data;
+        });
+    };
+
     PlantLab.prototype.login_socket = function (name, pass) {
         var _this = this;
         var socket = this.create_socket();
-        return this.login_http(name, pass).then(function (res) {
-            socket.on('error', function (data) {
-                console.log('Socket Error', data);
-                throw new Error('Error with socket communication.');
-            });
-            var def = when.defer();
-            res.setEncoding('utf8');
-            res.on('data', function (json) {
-                var data = JSON.parse(json);
+        socket.on('error', function (data) {
+            console.log('Socket Error', data);
+            throw new Error('Error with socket communication.');
+        });
 
-                def.resolve(data);
-            });
-            return def.promise;
-        }).then(function (data) {
+        return this.login_http(name, pass).then(function (data) {
             return _this.emit(socket, 'login', data);
         }).then(function () {
             return socket;

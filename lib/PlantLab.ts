@@ -20,6 +20,8 @@ class PlantLab {
     this.ground = vineyard.ground
     if (process.argv.indexOf('-d') > -1)
       this.ground.db.log_queries = true
+
+    this.server.debug_mode = true
   }
 
   stop() {
@@ -69,27 +71,28 @@ class PlantLab {
     return def.promise
   }
 
-  login_http(name:string, pass:string):Promise {
+  post(path, data, login_data = null):Promise {
     var def = when.defer()
     var http = require('http')
-    var fs = require('fs')
-    var path = require('path')
     var options = {
       host: 'localhost',
       port: this.vineyard.config.bulbs.lawn.ports.http,
-      path: '/vineyard/login',
+      path: path,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       }
     }
+
+    if (login_data && login_data.cookie)
+      options.headers['Cookie'] = login_data.cookie
+
     if (this.http_config) {
       options.host = this.http_config.host
       options.port = this.http_config.port
     }
 
     var req = http.request(options, function (res) {
-//      console.log('log-res', res)
       if (res.statusCode != '200') {
         res.setEncoding('utf8')
         res.on('data', function (chunk) {
@@ -98,14 +101,12 @@ class PlantLab {
         })
       }
       else {
-        def.resolve(res)
+        res.on('data', function (data) {
+          res.content =  JSON.parse(data)
+          def.resolve(res)
+        })
       }
     })
-
-    var data = {
-      name: name,
-      pass: pass
-    }
 
     req.write(JSON.stringify(data))
     req.end()
@@ -118,23 +119,32 @@ class PlantLab {
     return def.promise
   }
 
+  login_http(name:string, pass:string):Promise {
+    var data = {
+      name: name,
+      pass: pass
+    }
+
+    return this.post('/vineyard/login', data)
+      .then((res)=> {
+        var data = res.content
+        var cookie = res.headers["set-cookie"]
+        if (cookie) {
+          data.cookie = (cookie + "").split(";").shift()
+        }
+//          console.log('data:', data)
+        return data
+      })
+  }
+
   login_socket(name:string, pass:string):Promise {
     var socket = this.create_socket()
+    socket.on('error', (data) => {
+      console.log('Socket Error', data)
+      throw new Error('Error with socket communication.')
+    })
+
     return this.login_http(name, pass)
-      .then((res)=> {
-        socket.on('error', (data) => {
-          console.log('Socket Error', data)
-          throw new Error('Error with socket communication.')
-        })
-        var def = when.defer()
-        res.setEncoding('utf8')
-        res.on('data', function (json) {
-          var data = JSON.parse(json)
-//          console.log('data:', data)
-          def.resolve(data)
-        })
-        return def.promise
-      })
       .then((data)=> this.emit(socket, 'login', data))
       .then(() => socket)
   }

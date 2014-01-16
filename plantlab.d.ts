@@ -20,6 +20,7 @@ declare class PlantLab {
     public start(): void;
     public test(name: string, tests: any): void;
     public emit(socket: any, url: any, data: any): Promise;
+    public post(path: any, data: any, login_data?: any): Promise;
     public login_http(name: string, pass: string): Promise;
     public login_socket(name: string, pass: string): Promise;
 }
