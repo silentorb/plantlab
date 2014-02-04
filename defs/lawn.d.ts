@@ -23,18 +23,23 @@ declare class Lawn extends Vineyard.Bulb {
     public query_user(user: any, query: Ground.Query_Builder): void;
     public start(): void;
     public get_user_from_session(token: string): Promise;
-    public http_login(req: any, res: any, body: any): void;
+    public http_login(req: any, res: any, body: any): Promise;
+    static create_session(user: any, req: any, ground: any): Promise;
+    static send_http_login_success(req: any, res: any, user: any): void;
+    static request(options: any, data?: any, secure?: boolean): Promise;
     public login(data: any, socket: ISocket, callback: any): {};
     public on_connection(socket: ISocket): Socket;
     static process_public_http(req: any, res: any, action: any): void;
-    static listen_public_post(app: any, path: any, action: any): void;
+    public on_socket(socket: any, event: any, user: any, action: any): void;
+    static listen_public_http(app: any, path: any, action: any, method?: string): void;
     public process_error(error: any, user: any): {
         status: any;
         message: any;
     };
     public process_user_http(req: any, res: any, action: any): void;
-    public listen_user_post(path: any, action: any): void;
+    public listen_user_http(path: any, action: any, method?: string): void;
     public start_sockets(port?: any): void;
+    private static file_exists(filepath);
     public start_http(port: any): void;
     public stop(): void;
 }
@@ -65,6 +70,14 @@ declare module Lawn {
         static process(method: string, request: Ground.External_Query_Source, user: Vineyard.IUser, vineyard: Vineyard, socket: any, callback: any): Promise;
         static query(request: Ground.External_Query_Source, user: Vineyard.IUser, ground: Ground.Core, vineyard: Vineyard): Promise;
         static update(request: Update_Request, user: Vineyard.IUser, ground: Ground.Core, vineyard: Vineyard): Promise;
+    }
+    class Facebook extends Vineyard.Bulb {
+        public lawn: Lawn;
+        public grow(): void;
+        public create_user(facebook_id: any, source: any): Promise;
+        public login(req: any, res: any, body: any): Promise;
+        public get_user(body: any): Promise;
+        public get_user_facebook_id(body: any): Promise;
     }
 }
 declare module "lawn" {

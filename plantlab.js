@@ -57,6 +57,33 @@ var PlantLab = (function () {
         return def.promise;
     };
 
+    PlantLab.prototype.emit_for_error = function (socket, url, data) {
+        var def = when.defer();
+        socket.on_error = function (response) {
+            console.log('finished:', url);
+            delete socket.on_error;
+            def.resolve(response);
+        };
+        socket.emit(url, data, function (response) {
+            var status = response.status;
+            if ([400, 401, 403, 404, 500].indexOf(status) > -1)
+                def.resolve(response);
+            else
+                throw new Error("Server returned success when it should have returned an error.");
+        });
+        return def.promise;
+    };
+
+    PlantLab.prototype.on_socket = function (socket, event) {
+        var def = when.defer();
+        var method = function (response) {
+            socket.removeListener(event, method);
+            def.resolve(response);
+        };
+        socket.on(event, method);
+        return def.promise;
+    };
+
     PlantLab.prototype.post = function (path, data, login_data) {
         if (typeof login_data === "undefined") { login_data = null; }
         var def = when.defer();
@@ -126,8 +153,13 @@ var PlantLab = (function () {
         var _this = this;
         var socket = this.create_socket();
         socket.on('error', function (data) {
-            console.log('Socket Error', data);
-            throw new Error('Error with socket communication.');
+            console.log('handler', socket.on_error);
+            if (typeof socket.on_error == 'function') {
+                socket.on_error(data);
+            } else {
+                console.log('Socket Error', data);
+                throw new Error('Error with socket communication.');
+            }
         });
 
         return this.login_http(name, pass).then(function (data) {

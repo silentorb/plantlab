@@ -71,6 +71,37 @@ class PlantLab {
     return def.promise
   }
 
+  // Flips error handling around.
+  // Resolves true if the server returned an error.
+  // Throws an error if the request succeeded.
+  // Used to test that the server is throwing errors when it should.
+  emit_for_error(socket, url, data):Promise {
+    var def = when.defer()
+    socket.on_error = (response)=> {
+      console.log('finished:', url)
+      delete socket.on_error
+      def.resolve(response)
+    }
+    socket.emit(url, data, (response)=> {
+      var status = response.status
+      if ([400, 401, 403, 404, 500].indexOf(status) > -1)
+        def.resolve(response)
+      else
+        throw new Error("Server returned success when it should have returned an error.")
+    })
+    return def.promise
+  }
+
+  on_socket(socket, event):Promise {
+    var def = when.defer()
+    var method = (response)=> {
+      socket.removeListener(event, method)
+      def.resolve(response)
+    }
+    socket.on(event, method)
+    return def.promise
+  }
+
   post(path, data, login_data = null):Promise {
     var def = when.defer()
     var http = require('http')
@@ -102,7 +133,7 @@ class PlantLab {
       }
       else {
         res.on('data', function (data) {
-          res.content =  JSON.parse(data)
+          res.content = JSON.parse(data)
           def.resolve(res)
         })
       }
@@ -140,8 +171,14 @@ class PlantLab {
   login_socket(name:string, pass:string):Promise {
     var socket = this.create_socket()
     socket.on('error', (data) => {
-      console.log('Socket Error', data)
-      throw new Error('Error with socket communication.')
+      console.log('handler', socket.on_error)
+      if (typeof socket.on_error == 'function') {
+        socket.on_error(data)
+      }
+      else {
+        console.log('Socket Error', data)
+        throw new Error('Error with socket communication.')
+      }
     })
 
     return this.login_http(name, pass)
