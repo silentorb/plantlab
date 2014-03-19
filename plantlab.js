@@ -3,6 +3,7 @@ var PlantLab = (function () {
     function PlantLab(config_path) {
         this.sockets = [];
         var vineyard = this.vineyard = new Vineyard(config_path);
+        vineyard.load_all_bulbs();
         this.server = vineyard.bulbs.lawn;
         this.ground = vineyard.ground;
         if (process.argv.indexOf('-d') > -1)
@@ -89,8 +90,8 @@ var PlantLab = (function () {
         var def = when.defer();
         var http = require('http');
         var options = {
-            host: 'localhost',
-            port: this.vineyard.config.bulbs.lawn.ports.http,
+            host: this.http_host || 'localhost',
+            port: this.http_port || this.vineyard.config.bulbs.lawn.ports.http,
             path: path,
             method: 'POST',
             headers: {

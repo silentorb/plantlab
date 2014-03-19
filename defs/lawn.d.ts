@@ -18,10 +18,18 @@ declare class Lawn extends Vineyard.Bulb {
     public grow(): void;
     static authorization(handshakeData: any, callback: any): any;
     public debug(...args: any[]): void;
+    public emit_to_users(users: any, name: any, data: any): void;
+    public notify(users: any, name: any, data: any): void;
     public get_user_socket(id: number): Socket;
     public initialize_session(socket: any, user: any): void;
     public query_user(user: any, query: Ground.Query_Builder): void;
     public start(): void;
+    static public_user_properties: string[];
+    static internal_user_properties: string[];
+    private static is_ready_user_object(user);
+    private static format_public_user(user);
+    private static format_internal_user(user);
+    public get_public_user(user: any): Promise;
     public get_user_from_session(token: string): Promise;
     public http_login(req: any, res: any, body: any): Promise;
     static create_session(user: any, req: any, ground: any): Promise;
@@ -39,6 +47,7 @@ declare class Lawn extends Vineyard.Bulb {
     public process_user_http(req: any, res: any, action: any): void;
     public listen_user_http(path: any, action: any, method?: string): void;
     public start_sockets(port?: any): void;
+    public file_download(req: any, res: any, user: any): Promise;
     private static file_exists(filepath);
     public start_http(port: any): void;
     public stop(): void;
@@ -50,6 +59,8 @@ declare module Lawn {
         use_redis?: boolean;
         cookie_secret?: string;
         log_file?: string;
+        admin: any;
+        file_path?: string;
     }
     interface Update_Request {
         objects: any[];
@@ -78,6 +89,14 @@ declare module Lawn {
         public login(req: any, res: any, body: any): Promise;
         public get_user(body: any): Promise;
         public get_user_facebook_id(body: any): Promise;
+    }
+    class Songbird extends Vineyard.Bulb {
+        public lawn: Lawn;
+        public grow(): void;
+        public initialize_socket(socket: any, user: any): void;
+        public notify(users: any, name: any, data: any, store?: boolean): void;
+        public notification_receieved(user: any, request: any): Promise;
+        public send_pending_notifications(user: any): void;
     }
 }
 declare module "lawn" {
