@@ -16,7 +16,7 @@ declare class PlantLab {
     public http_config: any;
     public http_host: any;
     public http_port: any;
-    constructor(config_path: string);
+    constructor(config_path: string, bulbs?: any);
     public stop(): void;
     public create_socket(): any;
     public start(): void;

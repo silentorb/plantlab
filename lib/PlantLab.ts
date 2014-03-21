@@ -16,9 +16,17 @@ class PlantLab {
   http_host
   http_port
 
-  constructor(config_path:string) {
+  constructor(config_path:string, bulbs = null) {
     var vineyard = this.vineyard = new Vineyard(config_path)
-    vineyard.load_all_bulbs()
+    if (bulbs) {
+      for (var i in bulbs) {
+        vineyard.load_bulb(bulbs[i])
+      }
+    }
+    else {
+      vineyard.load_all_bulbs()
+    }
+
     this.server = vineyard.bulbs.lawn
     this.ground = vineyard.ground
     if (process.argv.indexOf('-d') > -1)

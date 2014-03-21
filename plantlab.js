@@ -1,9 +1,17 @@
 var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = require('vineyard');var Ground = require('ground');var when = require('when');var io = require('socket.io-client');var buster = require("buster");
 var PlantLab = (function () {
-    function PlantLab(config_path) {
+    function PlantLab(config_path, bulbs) {
+        if (typeof bulbs === "undefined") { bulbs = null; }
         this.sockets = [];
         var vineyard = this.vineyard = new Vineyard(config_path);
-        vineyard.load_all_bulbs();
+        if (bulbs) {
+            for (var i in bulbs) {
+                vineyard.load_bulb(bulbs[i]);
+            }
+        } else {
+            vineyard.load_all_bulbs();
+        }
+
         this.server = vineyard.bulbs.lawn;
         this.ground = vineyard.ground;
         if (process.argv.indexOf('-d') > -1)
