@@ -20,17 +20,7 @@ var PlantLab = (function () {
         this.server.debug_mode = true;
     }
     PlantLab.prototype.stop = function () {
-        if (this.server) {
-            console.log('stopping server');
-            this.server.stop();
-        }
-
-        for (var s in this.sockets) {
-            if (this.sockets[s]) {
-                console.log('Disconnecting client socket: ', this.sockets[s].socket.sessionid);
-                this.sockets[s].disconnect();
-            }
-        }
+        this.vineyard.stop();
 
         this.sockets = [];
     };
@@ -50,7 +40,7 @@ var PlantLab = (function () {
     };
 
     PlantLab.prototype.start = function () {
-        this.vineyard.start();
+        return this.vineyard.start();
     };
 
     PlantLab.prototype.test = function (name, tests) {
@@ -131,6 +121,53 @@ var PlantLab = (function () {
         });
 
         req.write(JSON.stringify(data));
+        req.end();
+
+        req.on('error', function (e) {
+            console.log('problem with request: ' + e.message);
+            def.reject();
+        });
+
+        return def.promise;
+    };
+
+    PlantLab.prototype.get_json = function (path, data, login_data) {
+        if (typeof login_data === "undefined") { login_data = null; }
+        var def = when.defer();
+        var http = require('http');
+        var options = {
+            host: this.http_host || 'localhost',
+            port: this.http_port || this.vineyard.config.bulbs.lawn.ports.http,
+            path: path,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        if (login_data && login_data.cookie)
+            options.headers['Cookie'] = login_data.cookie;
+
+        if (this.http_config) {
+            options.host = this.http_config.host;
+            options.port = this.http_config.port;
+        }
+
+        var req = http.request(options, function (res) {
+            if (res.statusCode != '200') {
+                res.setEncoding('utf8');
+                res.on('data', function (chunk) {
+                    console.log('client received an error:', res.statusCode, chunk);
+                    def.reject();
+                });
+            } else {
+                res.on('data', function (buffer) {
+                    res.content = JSON.parse(buffer);
+                    def.resolve(res.content);
+                });
+            }
+        });
+
         req.end();
 
         req.on('error', function (e) {

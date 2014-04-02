@@ -19,12 +19,13 @@ declare class PlantLab {
     constructor(config_path: string, bulbs?: any);
     public stop(): void;
     public create_socket(): any;
-    public start(): void;
+    public start(): Promise;
     public test(name: string, tests: any): void;
     public emit(socket: any, url: any, data: any): Promise;
     public emit_for_error(socket: any, url: any, data: any): Promise;
     public on_socket(socket: any, event: any): Promise;
     public post(path: any, data: any, login_data?: any): Promise;
+    public get_json(path: any, data: any, login_data?: any): Promise;
     public login_http(name: string, pass: string): Promise;
     public login_socket(name: string, pass: string): Promise;
 }
