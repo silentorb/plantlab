@@ -3,7 +3,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-ts')
   grunt.loadNpmTasks('grunt-contrib-concat')
   grunt.loadNpmTasks('grunt-contrib-watch')
-  grunt.loadNpmTasks('grunt-contrib-copy')
   grunt.loadNpmTasks('grunt-text-replace')
 
   grunt.initConfig({
@@ -51,13 +50,6 @@ module.exports = function (grunt) {
         ]
       }
     },
-    copy: {
-      "plantlab-def": {
-        files: [
-          { src: 'plantlab.d.ts', dest: '../../defs/'},
-        ]
-      }
-    },
     watch: {
       plantlab: {
         files: 'lib/**/*.ts',
@@ -66,6 +58,6 @@ module.exports = function (grunt) {
     }
   })
 
-  grunt.registerTask('default', ['ts:plantlab', 'concat:plantlab', 'concat:plantlab-def', 'replace:plantlab-def', 'copy:plantlab-def']);
+  grunt.registerTask('default', ['ts:plantlab', 'concat:plantlab', 'concat:plantlab-def', 'replace:plantlab-def']);
 
 }

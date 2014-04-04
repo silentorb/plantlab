@@ -6,6 +6,9 @@
 declare var buster:any
 declare var io:any
 
+//var Lawn = require('lawn')
+var when = require('when')
+
 class PlantLab {
   ground:Ground.Core
   vineyard:Vineyard

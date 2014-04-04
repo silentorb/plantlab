@@ -1,4 +1,6 @@
-var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = require('vineyard');var Ground = require('ground');var when = require('when');var io = require('socket.io-client');var buster = require("buster");
+var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = require('vineyard');var Ground = require('ground');var io = require('socket.io-client');var buster = require("buster");
+var when = require('when');
+
 var PlantLab = (function () {
     function PlantLab(config_path, bulbs) {
         if (typeof bulbs === "undefined") { bulbs = null; }

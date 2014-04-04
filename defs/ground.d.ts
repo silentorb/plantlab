@@ -1,8 +1,6 @@
 
-/// <reference path="when.d.ts" />
+/// <reference path="../metahub/metahub.d.ts" />
 
-/// <reference path="metahub.d.ts" />
-declare var when: any;
 declare module Ground {
     class Database {
         public settings: any;
@@ -12,6 +10,7 @@ declare module Ground {
         constructor(settings: {}, database: string);
         public add_table_to_database(table: Ground.Table, ground: Ground.Core): Promise;
         public add_non_trellis_tables_to_database(tables: Ground.Table[], ground: Ground.Core): Promise;
+        public close(): void;
         public create_table(trellis: Ground.Trellis): Promise;
         public create_trellis_tables(trellises: Ground.Trellis[]): Promise;
         public drop_all_tables(): Promise;
@@ -274,6 +273,7 @@ declare module Ground {
         private parse_schema(data);
         static remove_fields(object: any, trellis: Ground.Trellis, filter: any): any;
         public sanitize_trellis_argument(trellis: any): Ground.Trellis;
+        public stop(): void;
         static to_bool(input: any): boolean;
     }
 }
@@ -474,5 +474,7 @@ declare module Ground {
     }
 }
 declare module "ground" {
+  export = Ground
+}declare module "ground" {
   export = Ground
 }
