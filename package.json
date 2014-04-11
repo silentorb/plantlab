@@ -1,6 +1,6 @@
 {
-  "name": "plantlab",
-  "version": "0.0.0",
+  "name": "vineyard-plantlab",
+  "version": "0.1.1",
   "description": "Testing library for Vineyard",
   "main": "plantlab.js",
   "repository": {
@@ -12,7 +12,7 @@
   "devDependencies": {
     "socket.io-client": "0.9.x",
     "grunt-ts": "~1.x.x",
-    "grunt-contrib-watch": "~0.6.x",
+    "grunt-contrib-watch": "~0.6.1",
     "grunt-text-replace": "~0.3.x",
     "grunt": "~0.4.x",
     "grunt-contrib-concat": "~0.4.x"

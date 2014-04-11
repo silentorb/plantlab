@@ -1,4 +1,4 @@
-var MetaHub = require('metahub');var Ground = require('ground');var Vineyard = require('vineyard');var Ground = require('ground');var io = require('socket.io-client');var buster = require("buster");
+var MetaHub = require('vineyard-metahub');var Ground = require('vineyard-ground');var Vineyard = require('vineyard');var io = require('socket.io-client');var buster = require("buster");
 var when = require('when');
 
 var PlantLab = (function () {
@@ -133,7 +133,7 @@ var PlantLab = (function () {
         return def.promise;
     };
 
-    PlantLab.prototype.get_json = function (path, data, login_data) {
+    PlantLab.prototype.get_json = function (path, login_data) {
         if (typeof login_data === "undefined") { login_data = null; }
         var def = when.defer();
         var http = require('http');
@@ -192,7 +192,6 @@ var PlantLab = (function () {
             if (cookie) {
                 data.cookie = (cookie + "").split(";").shift();
             }
-
             return data;
         });
     };

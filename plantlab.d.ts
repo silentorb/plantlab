@@ -1,5 +1,5 @@
-/// <reference path="../lawn/lawn.d.ts" />
-/// <reference path="buster.d.ts" />
+/// <reference path="../vineyard-lawn/lawn.d.ts" />
+/// <reference path="defs/buster.d.ts" />
 declare var buster: any;
 declare var io: any;
 declare var when: any;
@@ -21,7 +21,7 @@ declare class PlantLab {
     public emit_for_error(socket: any, url: any, data: any): Promise;
     public on_socket(socket: any, event: any): Promise;
     public post(path: any, data: any, login_data?: any): Promise;
-    public get_json(path: any, data: any, login_data?: any): Promise;
+    public get_json(path: any, login_data?: any): Promise;
     public login_http(name: string, pass: string): Promise;
     public login_socket(name: string, pass: string): Promise;
 }
@@ -38,8 +38,6 @@ declare module PlantLab {
         public empty_folder(folder: any): Promise;
     }
 }
-declare module "plantlab" {
-  export = PlantLab
-}declare module "plantlab" {
+declare module "vineyard-plantlab" {
   export = PlantLab
 }

@@ -1,12 +1,8 @@
-//declare function require(name: string): any;
-
 /// <reference path="references.ts"/>
 
-//var io = require('socket.io-client')
 declare var buster:any
 declare var io:any
 
-//var Lawn = require('lawn')
 var when = require('when')
 
 class PlantLab {
@@ -165,7 +161,7 @@ class PlantLab {
     return def.promise
   }
 
-  get_json(path, data, login_data = null):Promise {
+  get_json(path, login_data = null):Promise {
     var def = when.defer()
     var http = require('http')
     var options = {
@@ -231,7 +227,6 @@ class PlantLab {
         if (cookie) {
           data.cookie = (cookie + "").split(";").shift()
         }
-//          console.log('data:', data)
         return data
       })
   }
