@@ -34,12 +34,15 @@ class PlantLab {
     this.server.debug_mode = true
   }
 
-  stop() {
+  stop():Promise {
 //    if (this.server) {
 //      console.log('stopping server')
 //      this.server.stop()
 //    }
-    this.vineyard.stop()
+    return this.vineyard.stop()
+      .then(()=> {
+        this.sockets = []
+      })
 
 //    for (var s in this.sockets) {
 //      if (this.sockets[s]) {
@@ -48,7 +51,6 @@ class PlantLab {
 //      }
 //    }
 
-    this.sockets = []
   }
 
   create_socket() {
@@ -66,6 +68,9 @@ class PlantLab {
   }
 
   start():Promise {
+    if (!this.ground.db.active)
+      this.ground.db.start()
+
     return this.vineyard.start()
   }
 
@@ -267,9 +272,10 @@ module PlantLab {
 
     prepare_database():Promise {
       var db = this.ground.db;
+      db.start()
       return db.drop_all_tables()
         .then(()=> db.create_trellis_tables(this.ground.trellises))
-        .then(()=> db.add_non_trellis_tables_to_database(this.ground.tables, this.ground))
+        .then(()=> db.add_non_trellis_tables_to_database(this.ground.custom_tables, this.ground))
     }
 
     populate():Promise {

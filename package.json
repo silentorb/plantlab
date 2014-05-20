@@ -1,6 +1,6 @@
 {
   "name": "vineyard-plantlab",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Testing library for Vineyard",
   "main": "plantlab.js",
   "repository": {
@@ -9,8 +9,10 @@
   },
   "author": "Christopher W. Johnson",
   "license": "MIT",
+  "dependencies": {
+    "socket.io-client": "0.9.x"
+  },
   "devDependencies": {
-    "socket.io-client": "0.9.x",
     "grunt-ts": "~1.x.x",
     "grunt-contrib-watch": "~0.6.1",
     "grunt-text-replace": "~0.3.x",

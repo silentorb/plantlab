@@ -22,9 +22,10 @@ var PlantLab = (function () {
         this.server.debug_mode = true;
     }
     PlantLab.prototype.stop = function () {
-        this.vineyard.stop();
-
-        this.sockets = [];
+        var _this = this;
+        return this.vineyard.stop().then(function () {
+            _this.sockets = [];
+        });
     };
 
     PlantLab.prototype.create_socket = function () {
@@ -42,6 +43,9 @@ var PlantLab = (function () {
     };
 
     PlantLab.prototype.start = function () {
+        if (!this.ground.db.active)
+            this.ground.db.start();
+
         return this.vineyard.start();
     };
 
@@ -235,10 +239,11 @@ var PlantLab;
         Fixture.prototype.prepare_database = function () {
             var _this = this;
             var db = this.ground.db;
+            db.start();
             return db.drop_all_tables().then(function () {
                 return db.create_trellis_tables(_this.ground.trellises);
             }).then(function () {
-                return db.add_non_trellis_tables_to_database(_this.ground.tables, _this.ground);
+                return db.add_non_trellis_tables_to_database(_this.ground.custom_tables, _this.ground);
             });
         };
 

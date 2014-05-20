@@ -18,9 +18,10 @@ module PlantLab {
 
     prepare_database():Promise {
       var db = this.ground.db;
+      db.start()
       return db.drop_all_tables()
         .then(()=> db.create_trellis_tables(this.ground.trellises))
-        .then(()=> db.add_non_trellis_tables_to_database(this.ground.tables, this.ground))
+        .then(()=> db.add_non_trellis_tables_to_database(this.ground.custom_tables, this.ground))
     }
 
     populate():Promise {

@@ -13,7 +13,7 @@ declare class PlantLab {
     public http_host: any;
     public http_port: any;
     constructor(config_path: string, bulbs?: any);
-    public stop(): void;
+    public stop(): Promise;
     public create_socket(): any;
     public start(): Promise;
     public test(name: string, tests: any): void;
