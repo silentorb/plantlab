@@ -119,8 +119,13 @@ var PlantLab = (function () {
                     def.reject();
                 });
             } else {
-                res.on('data', function (data) {
-                    res.content = JSON.parse(data);
+                var buffer = '';
+                res.on('data', function (chunk) {
+                    buffer += chunk;
+                });
+
+                res.on('end', function () {
+                    res.content = JSON.parse(buffer);
                     def.resolve(res);
                 });
             }
@@ -167,9 +172,14 @@ var PlantLab = (function () {
                     def.reject();
                 });
             } else {
-                res.on('data', function (buffer) {
+                var buffer = '';
+                res.on('data', function (chunk) {
+                    buffer += chunk;
+                });
+
+                res.on('end', function () {
                     res.content = JSON.parse(buffer);
-                    def.resolve(res.content);
+                    def.resolve(res);
                 });
             }
         });
