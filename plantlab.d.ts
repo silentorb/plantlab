@@ -20,7 +20,7 @@ declare class PlantLab {
     public emit(socket: any, url: any, data: any): Promise;
     public emit_for_error(socket: any, url: any, data: any): Promise;
     public on_socket(socket: any, event: any): Promise;
-    public post(path: any, data: any, login_data?: any): Promise;
+    public post(path: any, data: any, login_data?: any, silent?: boolean): Promise;
     public get_json(path: any, login_data?: any): Promise;
     public login_http(name: string, pass: string): Promise;
     public login_socket(name: string, pass: string): Promise;

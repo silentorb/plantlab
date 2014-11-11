@@ -2,4 +2,4 @@
 
 /// <reference path="PlantLab.ts"/>
 /// <reference path="Fixture.ts"/>
-require('source-map-support').install();
+//require('source-map-support').install();

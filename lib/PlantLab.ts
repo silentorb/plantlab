@@ -118,9 +118,12 @@ class PlantLab {
     return def.promise
   }
 
-  post(path, data, login_data = null):Promise {
+  post(path, data, login_data = null, silent = false):Promise {
     var def = when.defer()
     var http = require('http')
+    if (path[0] != '/')
+      path = '/' + path
+
     var options = {
       host: this.http_host || 'localhost',
       port: this.http_port || this.vineyard.config.bulbs.lawn.ports.http,
@@ -143,8 +146,11 @@ class PlantLab {
       if (res.statusCode != '200') {
         res.setEncoding('utf8')
         res.on('data', function (chunk) {
-          console.log('client received an error:', res.statusCode, chunk)
-          def.reject()
+          if (!silent)
+            console.log('client received an error:', res.statusCode, chunk)
+
+          res.content = JSON.parse(chunk)
+          def.reject(res)
         })
       }
       else {
@@ -166,7 +172,9 @@ class PlantLab {
     req.end()
 
     req.on('error', function (e) {
-      console.log('problem with request: ' + e.message);
+      if (!silent)
+        console.log('problem with request: ' + e.message);
+
       def.reject()
     })
 

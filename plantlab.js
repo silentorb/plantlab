@@ -89,10 +89,14 @@ var PlantLab = (function () {
         return def.promise;
     };
 
-    PlantLab.prototype.post = function (path, data, login_data) {
+    PlantLab.prototype.post = function (path, data, login_data, silent) {
         if (typeof login_data === "undefined") { login_data = null; }
+        if (typeof silent === "undefined") { silent = false; }
         var def = when.defer();
         var http = require('http');
+        if (path[0] != '/')
+            path = '/' + path;
+
         var options = {
             host: this.http_host || 'localhost',
             port: this.http_port || this.vineyard.config.bulbs.lawn.ports.http,
@@ -115,8 +119,11 @@ var PlantLab = (function () {
             if (res.statusCode != '200') {
                 res.setEncoding('utf8');
                 res.on('data', function (chunk) {
-                    console.log('client received an error:', res.statusCode, chunk);
-                    def.reject();
+                    if (!silent)
+                        console.log('client received an error:', res.statusCode, chunk);
+
+                    res.content = JSON.parse(chunk);
+                    def.reject(res);
                 });
             } else {
                 var buffer = '';
@@ -135,7 +142,9 @@ var PlantLab = (function () {
         req.end();
 
         req.on('error', function (e) {
-            console.log('problem with request: ' + e.message);
+            if (!silent)
+                console.log('problem with request: ' + e.message);
+
             def.reject();
         });
 
