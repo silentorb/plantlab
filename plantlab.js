@@ -25,6 +25,10 @@ var PlantLab = (function () {
         var _this = this;
         return this.vineyard.stop().then(function () {
             _this.sockets = [];
+            if (_this.main_socket) {
+                _this.main_socket.disconnect();
+                _this.main_socket = null;
+            }
         });
     };
 
@@ -116,17 +120,21 @@ var PlantLab = (function () {
         }
 
         var req = http.request(options, function (res) {
+            var buffer = '';
             if (res.statusCode != '200') {
                 res.setEncoding('utf8');
                 res.on('data', function (chunk) {
-                    if (!silent)
-                        console.log('client received an error:', res.statusCode, chunk);
+                    buffer += chunk;
+                });
 
-                    res.content = JSON.parse(chunk);
+                res.on('end', function () {
+                    res.content = buffer.toString();
+                    if (!silent)
+                        console.log('client received an error:', res.statusCode, res.content);
+
                     def.reject(res);
                 });
             } else {
-                var buffer = '';
                 res.on('data', function (chunk) {
                     buffer += chunk;
                 });

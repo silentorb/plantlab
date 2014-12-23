@@ -35,22 +35,14 @@ class PlantLab {
   }
 
   stop():Promise {
-//    if (this.server) {
-//      console.log('stopping server')
-//      this.server.stop()
-//    }
     return this.vineyard.stop()
       .then(()=> {
         this.sockets = []
+        if (this.main_socket) {
+          this.main_socket.disconnect()
+          this.main_socket = null
+        }
       })
-
-//    for (var s in this.sockets) {
-//      if (this.sockets[s]) {
-//        console.log('Disconnecting client socket: ', this.sockets[s].socket.sessionid)
-//        this.sockets[s].disconnect()
-//      }
-//    }
-
   }
 
   create_socket() {
@@ -143,18 +135,22 @@ class PlantLab {
     }
 
     var req = http.request(options, function (res) {
+      var buffer = ''
       if (res.statusCode != '200') {
         res.setEncoding('utf8')
         res.on('data', function (chunk) {
-          if (!silent)
-            console.log('client received an error:', res.statusCode, chunk)
+          buffer += chunk
+        })
 
-          res.content = JSON.parse(chunk)
+        res.on('end', function () {
+          res.content = buffer.toString()
+          if (!silent)
+            console.log('client received an error:', res.statusCode, res.content)
+
           def.reject(res)
         })
       }
       else {
-        var buffer = ''
         res.on('data', function (chunk) {
 //          res.content = JSON.parse(buffer)
 //          def.resolve(res.content)
