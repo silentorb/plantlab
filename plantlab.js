@@ -10,6 +10,7 @@ var PlantLab = (function () {
             for (var i in bulbs) {
                 vineyard.load_bulb(bulbs[i]);
             }
+            vineyard.finalize();
         } else {
             vineyard.load_all_bulbs();
         }
